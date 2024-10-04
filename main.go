@@ -8,11 +8,11 @@ import (
 	"tic_tac_toe/models"
 )
 
-var games = models.Games{
-	Games: make(map[string]models.Game),
-}
-
 func main() {
+	games := models.Games{
+		Games: make(map[string]models.Game),
+	}
+
 	http.HandleFunc("/games", handlers.NewGamesHandler(&games))
 	http.HandleFunc("/games/", handlers.NewGamesHandler(&games))
 

@@ -54,11 +54,16 @@ func getGameHandler(games *models.Games, w http.ResponseWriter, r *http.Request)
 	id := pathSplits[2]
 	game := games.GetGame(id)
 
-	resp, err := json.Marshal(game)
+	// resp, err := json.Marshal(game)
+	// if err != nil {
+	// 	http.Error(w, "Error while producing response", http.StatusInternalServerError)
+	// }
+
+	w.Header().Set("Content-Type", "application/json")
+	// _, _ = w.Write(resp)
+	//
+	err := json.NewEncoder(w).Encode(game)
 	if err != nil {
 		http.Error(w, "Error while producing response", http.StatusInternalServerError)
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	_, _ = w.Write(resp)
 }
