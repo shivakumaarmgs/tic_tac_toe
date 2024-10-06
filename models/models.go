@@ -3,7 +3,7 @@ package models
 import "github.com/google/uuid"
 
 type Games struct {
-	Games map[string]Game
+	Games map[uuid.UUID]Game
 	Count int
 }
 
@@ -12,15 +12,15 @@ func (g *Games) AddGame(game Game) {
 	g.Count++
 }
 
-func (g *Games) GetGame(uuid string) (game Game) {
+func (g *Games) GetGame(uuid uuid.UUID) (game Game) {
 	return g.Games[uuid]
 }
 
 type Game struct {
-	Name string `json:"name"`
-	Uuid string `json:"uuid"`
+	Name string    `json:"name"`
+	Uuid uuid.UUID `json:"uuid"`
 }
 
 func (g *Game) GenerateUuid() {
-	g.Uuid = uuid.New().String()
+	g.Uuid = uuid.New()
 }

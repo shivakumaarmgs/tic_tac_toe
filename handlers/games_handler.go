@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 	"tic_tac_toe/models"
+
+	"github.com/google/uuid"
 )
 
 func NewGamesHandler(games *models.Games) http.HandlerFunc {
@@ -51,7 +53,10 @@ func getGameHandler(games *models.Games, w http.ResponseWriter, r *http.Request)
 		http.Error(w, "URL invalid", http.StatusBadRequest)
 	}
 
-	id := pathSplits[2]
+	id, err := uuid.Parse(pathSplits[2])
+	if err != nil {
+		http.Error(w, "UUID given in the URL is not valid", http.StatusBadRequest)
+	}
 	game := games.GetGame(id)
 
 	// resp, err := json.Marshal(game)
@@ -62,7 +67,7 @@ func getGameHandler(games *models.Games, w http.ResponseWriter, r *http.Request)
 	w.Header().Set("Content-Type", "application/json")
 	// _, _ = w.Write(resp)
 	//
-	err := json.NewEncoder(w).Encode(game)
+	err = json.NewEncoder(w).Encode(game)
 	if err != nil {
 		http.Error(w, "Error while producing response", http.StatusInternalServerError)
 	}
