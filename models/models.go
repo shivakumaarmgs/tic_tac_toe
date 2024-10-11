@@ -20,8 +20,8 @@ func (g *Games) GetGame(uuid uuid.UUID) (game Game, ok bool) {
 }
 
 type Game struct {
-	Name string    `json:"name"`
-	Uuid uuid.UUID `json:"uuid"`
+	Name string    `json:"name" validate:"required"`
+	Uuid uuid.UUID `json:"uuid" validate:"required"`
 }
 
 func (g *Game) GenerateUuid() {

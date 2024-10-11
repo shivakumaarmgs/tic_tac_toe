@@ -8,6 +8,7 @@ import (
 	"tic_tac_toe/models"
 	"tic_tac_toe/utils"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 )
 
@@ -33,6 +34,25 @@ func createGameHandler(games *models.Games, w http.ResponseWriter, r *http.Reque
 	}
 
 	game.GenerateUuid()
+
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	err = validate.Struct(game)
+	if err != nil {
+		var errMessage []string
+		for _, err := range err.(validator.ValidationErrors) {
+			errMessage = append(errMessage,
+				fmt.Sprintf(
+					"%s is %s and should be of type %s",
+					err.Field(),
+					err.Tag(),
+					err.Type(),
+				),
+			)
+		}
+		utils.RespondWithError(w, http.StatusUnprocessableEntity, strings.Join(errMessage, ";"))
+		return
+	}
+
 	games.AddGame(game)
 	fmt.Println("All Games")
 	fmt.Println(games)
