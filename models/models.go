@@ -1,6 +1,8 @@
 package models
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+)
 
 type Games struct {
 	Games map[uuid.UUID]Game
@@ -12,8 +14,9 @@ func (g *Games) AddGame(game Game) {
 	g.Count++
 }
 
-func (g *Games) GetGame(uuid uuid.UUID) (game Game) {
-	return g.Games[uuid]
+func (g *Games) GetGame(uuid uuid.UUID) (game Game, ok bool) {
+	game, ok = g.Games[uuid]
+	return
 }
 
 type Game struct {

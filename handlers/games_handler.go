@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 	"tic_tac_toe/models"
@@ -33,6 +34,9 @@ func createGameHandler(games *models.Games, w http.ResponseWriter, r *http.Reque
 
 	game.GenerateUuid()
 	games.AddGame(game)
+	fmt.Println("All Games")
+	fmt.Println(games)
+	fmt.Println(" ")
 
 	w.Header().Set("Content-Type", "application/json")
 	resp, err := json.Marshal(game)
@@ -56,7 +60,11 @@ func getGameHandler(games *models.Games, w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	game := games.GetGame(id)
+	game, ok := games.GetGame(id)
+	if !ok {
+		utils.RespondWithError(w, http.StatusNotFound, "Game not found for given uuid")
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(game)
