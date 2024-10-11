@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 	"tic_tac_toe/models"
+	"tic_tac_toe/utils"
 
 	"github.com/google/uuid"
 )
@@ -18,7 +18,7 @@ func NewGamesHandler(games *models.Games) http.HandlerFunc {
 		case http.MethodGet:
 			getGameHandler(games, w, r)
 		default:
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			utils.RespondWithError(w, http.StatusMethodNotAllowed, "Method not allowed")
 		}
 	}
 }
@@ -27,48 +27,37 @@ func createGameHandler(games *models.Games, w http.ResponseWriter, r *http.Reque
 	var game models.Game
 	err := json.NewDecoder(r.Body).Decode(&game)
 	if err != nil {
-		http.Error(w, "Error while decoding request", http.StatusBadRequest)
+		utils.RespondWithError(w, http.StatusBadRequest, "Error while decoding request body")
+		return
 	}
 
 	game.GenerateUuid()
 	games.AddGame(game)
 
-	fmt.Println(game)
-	fmt.Println(games)
-
-	fmt.Println("")
-
+	w.Header().Set("Content-Type", "application/json")
 	resp, err := json.Marshal(game)
 	if err != nil {
-		http.Error(w, "Error while producing response", http.StatusInternalServerError)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error while producing response")
+		return
 	}
-
-	w.Header().Set("Content-Type", "application/json")
 	_, _ = w.Write(resp)
 }
 
 func getGameHandler(games *models.Games, w http.ResponseWriter, r *http.Request) {
 	pathSplits := strings.Split(r.URL.Path, "/")
 	if len(pathSplits) != 3 {
-		http.Error(w, "URL invalid", http.StatusBadRequest)
+		utils.RespondWithError(w, http.StatusBadRequest, "URL invalid")
+		return
 	}
 
 	id, err := uuid.Parse(pathSplits[2])
 	if err != nil {
-		http.Error(w, "UUID given in the URL is not valid", http.StatusBadRequest)
+		utils.RespondWithError(w, http.StatusBadRequest, "UUID given in the URL is not valid")
+		return
 	}
+
 	game := games.GetGame(id)
 
-	// resp, err := json.Marshal(game)
-	// if err != nil {
-	// 	http.Error(w, "Error while producing response", http.StatusInternalServerError)
-	// }
-
 	w.Header().Set("Content-Type", "application/json")
-	// _, _ = w.Write(resp)
-	//
-	err = json.NewEncoder(w).Encode(game)
-	if err != nil {
-		http.Error(w, "Error while producing response", http.StatusInternalServerError)
-	}
+	_ = json.NewEncoder(w).Encode(game)
 }
