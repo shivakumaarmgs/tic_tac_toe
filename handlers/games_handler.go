@@ -38,18 +38,7 @@ func createGameHandler(games *models.Games, w http.ResponseWriter, r *http.Reque
 	validate := validator.New(validator.WithRequiredStructEnabled())
 	err = validate.Struct(game)
 	if err != nil {
-		var errMessage []string
-		for _, err := range err.(validator.ValidationErrors) {
-			errMessage = append(errMessage,
-				fmt.Sprintf(
-					"%s is %s and should be of type %s",
-					err.Field(),
-					err.Tag(),
-					err.Type(),
-				),
-			)
-		}
-		utils.RespondWithError(w, http.StatusUnprocessableEntity, strings.Join(errMessage, ";"))
+		utils.RespondWithValidationErrors(w, err.(validator.ValidationErrors))
 		return
 	}
 
@@ -61,7 +50,11 @@ func createGameHandler(games *models.Games, w http.ResponseWriter, r *http.Reque
 	w.Header().Set("Content-Type", "application/json")
 	resp, err := json.Marshal(game)
 	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "Error while producing response")
+		utils.RespondWithError(
+			w,
+			http.StatusInternalServerError,
+			"Error while producing response",
+		)
 		return
 	}
 	_, _ = w.Write(resp)
