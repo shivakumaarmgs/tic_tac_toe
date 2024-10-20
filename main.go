@@ -7,6 +7,7 @@ import (
 	"tic_tac_toe/handlers"
 	"tic_tac_toe/models"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
 
@@ -15,10 +16,12 @@ func main() {
 		Games: make(map[uuid.UUID]models.Game),
 	}
 
-	gamesHandler := handlers.NewGamesHandler(&games)
-	http.HandleFunc("/games", gamesHandler)
-	http.HandleFunc("/games/", gamesHandler)
+	router := chi.NewRouter()
+	router.Route("/games", func(r chi.Router) {
+		r.Post("/", handlers.CreateGameHandler(&games))
+		r.Get("/{uid}", handlers.FetchGameHandler(&games))
+	})
 
 	fmt.Println("Server is starting on port 8089...")
-	log.Fatal(http.ListenAndServe(":8089", nil))
+	log.Fatal(http.ListenAndServe(":8089", router))
 }

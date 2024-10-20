@@ -9,8 +9,8 @@ import (
 )
 
 type ErrorResponse struct {
-	Message string        `json:"message"`
 	Status  int           `json:"status"`
+	Message string        `json:"message"`
 	Errors  []SingleError `json:"errors"`
 }
 
