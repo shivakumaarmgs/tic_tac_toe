@@ -13,13 +13,16 @@ import (
 
 func main() {
 	games := models.Games{
-		Games: make(map[uuid.UUID]models.Game),
+		Games: make(map[uuid.UUID]*models.Game),
 	}
 
 	router := chi.NewRouter()
 	router.Route("/games", func(r chi.Router) {
-		r.Post("/", handlers.CreateGameHandler(&games))
-		r.Get("/{uid}", handlers.FetchGameHandler(&games))
+		r.Post("/", handlers.CreateGamesHandler(&games))
+		r.Get("/{uid}", handlers.ShowGamesHandler(&games))
+	})
+	router.Route("/game", func(r chi.Router) {
+		r.Post("/{uid}/mark", handlers.MarkBoxHanlder(&games))
 	})
 
 	fmt.Println("Server is starting on port 8089...")

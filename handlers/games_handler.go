@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func CreateGameHandler(games *models.Games) http.HandlerFunc {
+func CreateGamesHandler(games *models.Games) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var game models.Game
 		err := json.NewDecoder(r.Body).Decode(&game)
@@ -22,6 +22,7 @@ func CreateGameHandler(games *models.Games) http.HandlerFunc {
 		}
 
 		game.GenerateUuid()
+		game.InitializeBoard()
 
 		validate := validator.New(validator.WithRequiredStructEnabled())
 		err = validate.Struct(game)
@@ -30,7 +31,7 @@ func CreateGameHandler(games *models.Games) http.HandlerFunc {
 			return
 		}
 
-		games.AddGame(game)
+		games.AddGame(&game)
 		fmt.Println("All Games")
 		fmt.Println(games)
 		fmt.Println(" ")
@@ -49,7 +50,7 @@ func CreateGameHandler(games *models.Games) http.HandlerFunc {
 	}
 }
 
-func FetchGameHandler(games *models.Games) http.HandlerFunc {
+func ShowGamesHandler(games *models.Games) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		uid := chi.URLParam(r, "uid")
 		id, err := uuid.Parse(uid)
@@ -65,6 +66,8 @@ func FetchGameHandler(games *models.Games) http.HandlerFunc {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
+		fmt.Println("====")
+		fmt.Println(game)
 		_ = json.NewEncoder(w).Encode(game)
 	}
 }
